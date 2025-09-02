@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  # Serviço do Frontend (sua aplicação)
+  webapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jmd_webapp
+    ports:
+      - "8080:80" # Mapeia a porta 8080 do seu PC para a porta 80 do container
+    restart: unless-stopped
+    depends_on:
+      - db
+    networks:
+      - jmd-network
+
+  # Serviço do Banco de Dados PostgreSQL
+  db:
+    image: postgres:15-alpine
+    container_name: jmd_database
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: strongpassword123 # TROCAR POR UMA SENHA SEGURA
+      POSTGRES_DB: jmd_processos
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Volume para persistir os dados
+    ports:
+      - "5432:5432" # Expõe a porta do Postgres para o host (opcional, bom para debug)
+    restart: unless-stopped
+    networks:
+      - jmd-network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  jmd-network:
+    driver: bridge
+
