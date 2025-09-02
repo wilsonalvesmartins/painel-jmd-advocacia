@@ -1,12 +1,16 @@
-# Use a imagem oficial do Nginx como base
+# ETAPA 1: Usar a imagem oficial do Nginx
 FROM nginx:1.25-alpine
 
-# Copie o arquivo da sua aplicação (index.html) para o diretório raiz do Nginx
-# Isso vai substituir o index.html padrão do Nginx pelo nosso.
+# Copiar o arquivo de configuração personalizado do Nginx
+# Este arquivo vai configurar o proxy reverso para a API
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copiar os arquivos do frontend (apenas o index.html)
 COPY index.html /usr/share/nginx/html/
 
-# Exponha a porta 80 para permitir o tráfego de entrada
+# Expor a porta 80
 EXPOSE 80
 
-# Comando para iniciar o Nginx quando o container for executado
+# Comando para iniciar o Nginx
 CMD ["nginx", "-g", "daemon off;"]
+

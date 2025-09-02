@@ -8,448 +8,247 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 50;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.5);
-            align-items: center;
-            justify-content: center;
-        }
-        .modal-content {
-            background-color: #fefefe;
-            padding: 24px;
-            border: 1px solid #888;
-            width: 90%;
-            max-width: 500px;
-            border-radius: 0.5rem;
-        }
-        .animate-fade-in {
-            animation: fadeIn 0.3s ease-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .modal { display: none; position: fixed; z-index: 50; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); align-items: center; justify-content: center; }
+        .modal-content { background-color: #fefefe; padding: 24px; border: 1px solid #888; width: 90%; max-width: 550px; border-radius: 0.5rem; }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="antialiased">
 
+    <!-- APLICAÇÃO PRINCIPAL -->
     <div id="app" class="p-4 sm:p-6 lg:p-8">
-        <header class="mb-8">
-            <div class="max-w-7xl mx-auto">
-                <div class="flex items-center justify-between">
-                    <h1 class="text-3xl font-bold text-gray-800">JMD Advocacia</h1>
-                    <h2 class="text-xl font-semibold text-gray-600">Painel de Acompanhamento Processual</h2>
-                </div>
-                <div class="w-full h-px bg-gray-200 mt-4"></div>
+        <header class="mb-8 max-w-7xl mx-auto">
+             <div class="flex flex-wrap items-center justify-between gap-4">
+                <h1 class="text-3xl font-bold text-gray-800">Painel de Processos - JMD Advocacia</h1>
+                <button id="addProcessBtn" class="bg-indigo-600 text-white font-semibold py-2 px-5 rounded-md hover:bg-indigo-700 shadow flex items-center gap-2">
+                    <i class="fa fa-plus"></i> <span>Novo Processo</span>
+                </button>
             </div>
+             <div class="w-full h-px bg-gray-200 mt-4"></div>
         </header>
 
         <main class="max-w-7xl mx-auto">
-            <!-- Controles e Filtros -->
-            <div class="bg-white p-4 rounded-lg shadow-sm mb-6 flex flex-wrap items-center justify-between gap-4">
-                <div class="flex-grow flex flex-wrap items-center gap-4">
-                    <div class="relative w-full sm:w-auto flex-grow sm:flex-grow-0 sm:max-w-xs">
-                        <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                        <input id="searchInput" type="text" placeholder="Buscar por nº ou nome..." class="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
-                    </div>
-                     <div class="relative w-full sm:w-auto flex-grow sm:flex-grow-0 sm:max-w-xs">
-                        <select id="actionFilter" class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition appearance-none">
-                            <option value="todos">Todos os Tipos</option>
-                            <option value="Cível">Cível</option>
-                            <option value="Trabalhista">Trabalhista</option>
-                            <option value="Família">Família</option>
-                            <option value="Outros">Outros</option>
-                        </select>
-                         <i class="fa fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
-                    </div>
-                    <div class="relative w-full sm:w-auto flex-grow sm:flex-grow-0 sm:max-w-xs">
-                        <select id="statusFilter" class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition appearance-none">
-                            <option value="todos">Todos os Status</option>
-                            <option value="Aguardando Inicial">Aguardando Inicial</option>
-                            <option value="Em Andamento">Em Andamento</option>
-                            <option value="Em Execução">Em Execução</option>
-                            <option value="Aguardando Recurso">Aguardando Recurso</option>
-                            <option value="Concluído">Concluído</option>
-                            <option value="Suspenso">Suspenso</option>
-                        </select>
-                         <i class="fa fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
-                    </div>
-                </div>
-                 <div class="flex items-center gap-3">
-                    <div class="relative inline-block text-left">
-                        <div>
-                            <button type="button" id="exportBtn" class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500" aria-haspopup="true" aria-expanded="true">
-                                <i class="fa fa-download mr-2"></i>
-                                Exportar
-                                <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                </svg>
-                            </button>
-                        </div>
-                        <div id="exportMenu" class="origin-top-right absolute right-0 mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none hidden z-10">
-                            <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
-                                <a href="#" id="exportCsvBtn" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Como CSV</a>
-                                <a href="#" id="exportJsonBtn" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Como JSON</a>
-                            </div>
-                        </div>
-                    </div>
-                    <button id="addProcessBtn" class="bg-indigo-600 text-white font-semibold py-2 px-5 rounded-md hover:bg-indigo-700 transition-colors shadow flex items-center gap-2">
-                        <i class="fa fa-plus"></i>
-                        <span>Novo Processo</span>
-                    </button>
-                </div>
+            <div class="bg-white p-4 rounded-lg shadow-sm mb-6">
+                <input id="searchInput" type="text" placeholder="Buscar por nº do processo ou nome do cliente..." class="w-full pl-4 pr-4 py-2 border border-gray-300 rounded-md">
             </div>
 
-            <!-- Lista de Processos -->
             <div id="processList" class="space-y-4">
                 <!-- Cards de processo serão inseridos aqui -->
             </div>
-             <div id="no-results" class="hidden text-center py-10">
-                <p class="text-gray-500 text-lg">Nenhum processo encontrado.</p>
-            </div>
+            <div id="loading-processes" class="text-center py-10"><p class="text-gray-500">Carregando processos...</p></div>
+            <div id="no-results" class="hidden text-center py-10"><p class="text-gray-500 text-lg">Nenhum processo encontrado.</p></div>
         </main>
     </div>
 
-    <!-- Modal para Adicionar/Editar Processo -->
-    <div id="processModal" class="modal">
-        <div class="modal-content animate-fade-in">
-            <form id="processForm">
-                <h3 id="modalTitle" class="text-2xl font-bold mb-6 text-gray-800">Adicionar Novo Processo</h3>
-                <input type="hidden" id="processId">
-                <div class="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
-                    <div>
-                        <label for="numeroProcesso" class="block text-sm font-medium text-gray-700 mb-1">Número do Processo</label>
-                        <input type="text" id="numeroProcesso" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required>
-                    </div>
-                    <div>
-                        <label for="nomeCliente" class="block text-sm font-medium text-gray-700 mb-1">Nome do Cliente</label>
-                        <input type="text" id="nomeCliente" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required>
-                    </div>
-                    <div>
-                        <label for="tipoAcao" class="block text-sm font-medium text-gray-700 mb-1">Tipo de Ação</label>
-                        <select id="tipoAcao" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required>
-                            <option value="Cível">Cível</option>
-                            <option value="Trabalhista">Trabalhista</option>
-                            <option value="Família">Família</option>
-                            <option value="Outros">Outros</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="linkPainel" class="block text-sm font-medium text-gray-700 mb-1">Link do Painel</label>
-                        <input type="url" id="linkPainel" placeholder="https://..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                    </div>
-                    <div>
-                        <label for="situacao" class="block text-sm font-medium text-gray-700 mb-1">Situação</label>
-                        <select id="situacao" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required>
-                            <option value="Aguardando Inicial">Aguardando Inicial</option>
-                            <option value="Em Andamento">Em Andamento</option>
-                            <option value="Em Execução">Em Execução</option>
-                            <option value="Aguardando Recurso">Aguardando Recurso</option>
-                            <option value="Concluído">Concluído</option>
-                            <option value="Suspenso">Suspenso</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="proximaAudiencia" class="block text-sm font-medium text-gray-700 mb-1">Próxima Audiência</label>
-                        <input type="date" id="proximaAudiencia" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                    </div>
-                    <div>
-                        <label for="observacao" class="block text-sm font-medium text-gray-700 mb-1">Observação</label>
-                        <textarea id="observacao" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
-                    </div>
-                </div>
-                <div class="mt-8 flex justify-end gap-3">
-                    <button type="button" id="cancelBtn" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 font-semibold transition">Cancelar</button>
-                    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 font-semibold transition">Salvar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    
-    <div id="confirmDeleteModal" class="modal">
-        <div class="modal-content animate-fade-in w-full max-w-sm">
-            <h3 class="text-xl font-bold text-gray-800">Confirmar Exclusão</h3>
-            <p class="text-gray-600 mt-4 mb-6">Você tem certeza que deseja excluir este processo? Esta ação não pode ser desfeita.</p>
-            <div class="flex justify-end gap-3">
-                <button id="cancelDeleteBtn" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 font-semibold transition">Cancelar</button>
-                <button id="confirmDeleteBtn" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 font-semibold transition">Excluir</button>
-            </div>
-        </div>
-    </div>
-
+    <!-- Modals -->
+    <div id="processModal" class="modal"><div class="modal-content animate-fade-in"><form id="processForm"><h3 id="modalTitle" class="text-2xl font-bold mb-6"></h3><input type="hidden" id="processId"><div class="space-y-4 max-h-[60vh] overflow-y-auto pr-2 no-scrollbar"><div><label for="numeroProcesso">Número do Processo</label><input type="text" id="numeroProcesso" class="w-full mt-1 border-gray-300 rounded-md" required></div><div><label for="nomeCliente">Nome do Cliente</label><input type="text" id="nomeCliente" class="w-full mt-1 border-gray-300 rounded-md" required></div><div><label for="tipoAcao">Tipo de Ação</label><select id="tipoAcao" class="w-full mt-1 border-gray-300 rounded-md"><option>Cível</option><option>Trabalhista</option><option>Família</option><option>Outros</option></select></div><div><label for="linkPainel">Link do Painel</label><input type="url" id="linkPainel" placeholder="https://..." class="w-full mt-1 border-gray-300 rounded-md"></div><div><label for="situacao">Situação</label><select id="situacao" class="w-full mt-1 border-gray-300 rounded-md"><option>Aguardando Inicial</option><option>Em Andamento</option><option>Em Execução</option><option>Aguardando Recurso</option><option>Concluído</option><option>Suspenso</option></select></div><div><label for="proximaAudiencia">Próxima Audiência</label><input type="date" id="proximaAudiencia" class="w-full mt-1 border-gray-300 rounded-md"></div><div><label for="observacao">Observação Geral</label><textarea id="observacao" rows="3" class="w-full mt-1 border-gray-300 rounded-md"></textarea></div></div><div class="mt-8 flex justify-end gap-3"><button type="button" class="cancelBtn bg-gray-200 px-4 py-2 rounded-md">Cancelar</button><button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-md">Salvar</button></div></form></div></div>
+    <div id="movimentacoesModal" class="modal"><div class="modal-content animate-fade-in"><h3 class="text-2xl font-bold mb-2">Histórico de Movimentações</h3><p id="movProcessoNumero" class="text-gray-500 mb-6"></p><div id="movimentacoesList" class="space-y-3 mb-6 max-h-48 overflow-y-auto pr-2 no-scrollbar border-t border-b py-4"></div><form id="movimentacaoForm"><input type="hidden" id="movProcessoId"><div><label for="novaMovimentacao">Adicionar Nova Movimentação</label><textarea id="novaMovimentacao" rows="3" class="w-full mt-1 border-gray-300 rounded-md" required></textarea></div><div class="mt-6 flex justify-between items-center gap-3"><button type="button" class="cancelBtn bg-gray-200 px-4 py-2 rounded-md">Fechar</button><button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-md">Adicionar</button></div></form></div></div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const addProcessBtn = document.getElementById('addProcessBtn');
-    const processModal = document.getElementById('processModal');
-    const confirmDeleteModal = document.getElementById('confirmDeleteModal');
-    const cancelBtn = document.getElementById('cancelBtn');
-    const processForm = document.getElementById('processForm');
+    let allProcesses = [];
     const processList = document.getElementById('processList');
+    const searchInput = document.getElementById('searchInput');
+    const loadingDiv = document.getElementById('loading-processes');
+    const noResultsDiv = document.getElementById('no-results');
+
+    const processModal = document.getElementById('processModal');
+    const processForm = document.getElementById('processForm');
     const modalTitle = document.getElementById('modalTitle');
     const processIdInput = document.getElementById('processId');
-    const searchInput = document.getElementById('searchInput');
-    const statusFilter = document.getElementById('statusFilter');
-    const actionFilter = document.getElementById('actionFilter');
-    const noResults = document.getElementById('no-results');
-    const exportBtn = document.getElementById('exportBtn');
-    const exportMenu = document.getElementById('exportMenu');
-    const exportCsvBtn = document.getElementById('exportCsvBtn');
-    const exportJsonBtn = document.getElementById('exportJsonBtn');
-
-    let processes = JSON.parse(localStorage.getItem('processes')) || [];
-    let processToDeleteId = null;
-
-    const statusColors = {
-        "Aguardando Inicial": "bg-yellow-100 text-yellow-800",
-        "Em Andamento": "bg-blue-100 text-blue-800",
-        "Em Execução": "bg-green-100 text-green-800",
-        "Aguardando Recurso": "bg-purple-100 text-purple-800",
-        "Concluído": "bg-gray-200 text-gray-800",
-        "Suspenso": "bg-red-100 text-red-800",
-    };
     
-    const openModal = () => processModal.style.display = 'flex';
-    const closeModal = () => processModal.style.display = 'none';
+    const movimentacoesModal = document.getElementById('movimentacoesModal');
+    const movimentacaoForm = document.getElementById('movimentacaoForm');
+    const movProcessoIdInput = document.getElementById('movProcessoId');
+    const movProcessoNumero = document.getElementById('movProcessoNumero');
+    const movimentacoesList = document.getElementById('movimentacoesList');
 
-    const openConfirmDeleteModal = (id) => {
-        processToDeleteId = id;
-        confirmDeleteModal.style.display = 'flex';
-    };
-    const closeConfirmDeleteModal = () => {
-        processToDeleteId = null;
-        confirmDeleteModal.style.display = 'none';
-    };
+    const statusColors = {"Aguardando Inicial":"bg-yellow-100 text-yellow-800","Em Andamento":"bg-blue-100 text-blue-800","Em Execução":"bg-green-100 text-green-800","Aguardando Recurso":"bg-purple-100 text-purple-800","Concluído":"bg-gray-200 text-gray-800","Suspenso":"bg-red-100 text-red-800"};
 
-    addProcessBtn.addEventListener('click', () => {
-        modalTitle.textContent = 'Adicionar Novo Processo';
-        processForm.reset();
-        processIdInput.value = '';
-        openModal();
-    });
-
-    cancelBtn.addEventListener('click', closeModal);
-    document.getElementById('cancelDeleteBtn').addEventListener('click', closeConfirmDeleteModal);
-
-    window.addEventListener('click', (e) => {
-        if (e.target == processModal) closeModal();
-        if (e.target == confirmDeleteModal) closeConfirmDeleteModal();
-        if (!exportBtn.contains(e.target) && !exportMenu.contains(e.target)) {
-            exportMenu.classList.add('hidden');
-        }
-    });
-
-    const saveProcesses = () => {
-        localStorage.setItem('processes', JSON.stringify(processes));
-        renderProcesses();
+    // --- FUNÇÕES DA API ---
+    const api = {
+        getProcesses: () => fetch('/api/processes').then(res => res.json()),
+        createProcess: (data) => fetch('/api/processes', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        }).then(res => res.json()),
+        updateProcess: (id, data) => fetch(`/api/processes/${id}`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        }).then(res => res.json()),
+        addMovement: (id, text) => fetch(`/api/processes/${id}/movimentacoes`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ texto: text })
+        }).then(res => res.json())
     };
 
-    const formatDate = (dateString) => {
-        if (!dateString) return 'Não definida';
-        const date = new Date(dateString);
-        const userTimezoneOffset = date.getTimezoneOffset() * 60000;
-        return new Date(date.getTime() + userTimezoneOffset).toLocaleDateString('pt-BR');
-    };
-
-    const renderProcesses = () => {
+    // --- RENDERIZAÇÃO ---
+    function renderProcesses(processesToRender = allProcesses) {
         processList.innerHTML = '';
-        const searchTerm = searchInput.value.toLowerCase();
-        const filterStatus = statusFilter.value;
-        const filterAction = actionFilter.value;
+        loadingDiv.style.display = 'none';
 
-        const filteredProcesses = processes.filter(p => {
-            const matchesSearch = p.numero.toLowerCase().includes(searchTerm) || (p.cliente && p.cliente.toLowerCase().includes(searchTerm));
-            const matchesStatus = filterStatus === 'todos' || p.situacao === filterStatus;
-            const matchesAction = filterAction === 'todos' || p.acao === filterAction;
-            return matchesSearch && matchesStatus && matchesAction;
-        });
+        const searchTerm = searchInput.value.toLowerCase();
+        const filteredProcesses = processesToRender.filter(p => 
+            p.numero.toLowerCase().includes(searchTerm) || 
+            p.cliente.toLowerCase().includes(searchTerm)
+        );
 
         if (filteredProcesses.length === 0) {
-            noResults.style.display = 'block';
+            noResultsDiv.style.display = 'block';
         } else {
-            noResults.style.display = 'none';
+            noResultsDiv.style.display = 'none';
         }
 
-        filteredProcesses.sort((a, b) => new Date(b.lastUpdated) - new Date(a.lastUpdated));
-
         filteredProcesses.forEach(p => {
-            const color = statusColors[p.situacao] || 'bg-gray-100 text-gray-800';
+            const lastMov = p.movimentacoes && p.movimentacoes.length > 0 ? p.movimentacoes[p.movimentacoes.length - 1] : { texto: 'Nenhuma movimentação.', data: null };
             const card = `
-                <div class="bg-white rounded-lg shadow-md p-5 border-l-4 border-indigo-500 transition hover:shadow-lg">
-                    <div class="flex flex-wrap justify-between items-start gap-4">
-                        <div class="flex-grow">
-                            <div class="flex items-center gap-3 mb-2">
-                               <span class="text-sm font-semibold py-1 px-3 rounded-full ${color}">${p.situacao}</span>
-                            </div>
-                            <h3 class="text-xl font-bold text-gray-800">${p.numero}</h3>
-                            <p class="text-md font-semibold text-gray-700">${p.cliente || ''}</p>
-                            <p class="text-md text-gray-600">${p.acao}</p>
+                <div class="bg-white rounded-lg shadow-md p-5 border-l-4 border-indigo-500">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="text-sm font-semibold py-1 px-3 rounded-full ${statusColors[p.situacao] || ''}">${p.situacao}</span>
+                            <h3 class="text-xl font-bold mt-2">${p.numero}</h3>
+                            <p>${p.cliente}</p>
                         </div>
-                        <div class="flex-shrink-0 flex items-center gap-2">
-                             ${p.link ? `<a href="${p.link}" target="_blank" class="text-indigo-600 hover:text-indigo-800 h-9 w-9 grid place-content-center rounded-full hover:bg-gray-100" title="Acessar Painel"><i class="fa fa-external-link-alt"></i></a>` : ''}
-                            <button class="edit-btn text-blue-600 hover:text-blue-800 h-9 w-9 grid place-content-center rounded-full hover:bg-gray-100" data-id="${p.id}" title="Editar"><i class="fa fa-pencil-alt"></i></button>
-                            <button class="delete-btn text-red-600 hover:text-red-800 h-9 w-9 grid place-content-center rounded-full hover:bg-gray-100" data-id="${p.id}" title="Excluir"><i class="fa fa-trash-alt"></i></button>
-                        </div>
+                        <button class="edit-btn" data-id="${p.id}"><i class="fa fa-pencil-alt text-blue-500"></i></button>
                     </div>
-                    <div class="mt-4 pt-4 border-t border-gray-200">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Próxima Audiência</p>
-                                <p class="text-md font-semibold text-gray-700 flex items-center gap-2"><i class="fa fa-calendar-alt text-gray-400"></i> ${formatDate(p.audiencia)}</p>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Observação</p>
-                                <p class="text-md text-gray-700">${p.obs || 'Nenhuma'}</p>
-                            </div>
-                        </div>
+                    <div class="mt-4 pt-4 border-t">
+                        <p class="text-sm font-medium text-gray-500">Última Movimentação:</p>
+                        <p>${lastMov.texto}</p>
+                        <small>${lastMov.data ? new Date(lastMov.data).toLocaleString('pt-BR') : ''}</small>
+                    </div>
+                    <div class="mt-4 pt-4 border-t">
+                        <button class="movimentacoes-btn w-full bg-gray-100 p-2 rounded-md" data-id="${p.id}">
+                            Ver Histórico (${p.movimentacoes?.length || 0})
+                        </button>
                     </div>
                 </div>
             `;
             processList.innerHTML += card;
         });
-    };
+    }
 
-    processForm.addEventListener('submit', (e) => {
+    async function loadProcesses() {
+        try {
+            allProcesses = await api.getProcesses();
+            renderProcesses();
+        } catch (error) {
+            console.error('Erro ao carregar processos:', error);
+            loadingDiv.innerHTML = '<p class="text-red-500">Erro ao carregar processos.</p>';
+        }
+    }
+
+    // --- MODALS E FORMULÁRIOS ---
+    const openModal = (modal) => modal.style.display = 'flex';
+    const closeModal = (modal) => modal.style.display = 'none';
+
+    document.getElementById('addProcessBtn').addEventListener('click', () => {
+        processForm.reset();
+        processIdInput.value = '';
+        modalTitle.textContent = 'Adicionar Novo Processo';
+        openModal(processModal);
+    });
+
+    document.querySelectorAll('.cancelBtn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            closeModal(processModal);
+            closeModal(movimentacoesModal);
+        });
+    });
+
+    processForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const id = processIdInput.value;
-        const processData = {
+        const data = {
             numero: document.getElementById('numeroProcesso').value,
             cliente: document.getElementById('nomeCliente').value,
             acao: document.getElementById('tipoAcao').value,
             link: document.getElementById('linkPainel').value,
             situacao: document.getElementById('situacao').value,
             audiencia: document.getElementById('proximaAudiencia').value,
-            obs: document.getElementById('observacao').value,
-            lastUpdated: new Date().toISOString()
+            obs: document.getElementById('observacao').value
         };
 
-        if (id) {
-            const index = processes.findIndex(p => p.id === id);
-            processes[index] = { ...processes[index], ...processData };
-        } else {
-            processData.id = Date.now().toString();
-            processes.push(processData);
+        try {
+            if (id) {
+                await api.updateProcess(id, data);
+            } else {
+                await api.createProcess(data);
+            }
+            closeModal(processModal);
+            loadProcesses(); // Recarrega a lista
+        } catch (error) {
+            console.error('Erro ao salvar:', error);
+            alert('Falha ao salvar o processo.');
         }
-
-        saveProcesses();
-        closeModal();
     });
 
     processList.addEventListener('click', (e) => {
         const editBtn = e.target.closest('.edit-btn');
         if (editBtn) {
-            const id = editBtn.dataset.id;
-            const process = processes.find(p => p.id === id);
+            const process = allProcesses.find(p => p.id == editBtn.dataset.id);
             if (process) {
-                modalTitle.textContent = 'Editar Processo';
                 processIdInput.value = process.id;
+                modalTitle.textContent = 'Editar Processo';
                 document.getElementById('numeroProcesso').value = process.numero;
                 document.getElementById('nomeCliente').value = process.cliente;
-                document.getElementById('tipoAcao').value = process.acao;
-                document.getElementById('linkPainel').value = process.link;
-                document.getElementById('situacao').value = process.situacao;
-                document.getElementById('proximaAudiencia').value = process.audiencia;
-                document.getElementById('observacao').value = process.obs;
-                openModal();
+                // ... preencher outros campos
+                openModal(processModal);
             }
         }
-        
-        const deleteBtn = e.target.closest('.delete-btn');
-        if (deleteBtn) {
-            const id = deleteBtn.dataset.id;
-            openConfirmDeleteModal(id);
+
+        const movBtn = e.target.closest('.movimentacoes-btn');
+        if (movBtn) {
+            const process = allProcesses.find(p => p.id == movBtn.dataset.id);
+            if (process) {
+                movProcessoIdInput.value = process.id;
+                movProcessoNumero.textContent = `Processo: ${process.numero}`;
+                renderMovimentacoes(process.movimentacoes || []);
+                openModal(movimentacoesModal);
+            }
+        }
+    });
+
+    function renderMovimentacoes(movs) {
+        movimentacoesList.innerHTML = '';
+        if (movs.length === 0) {
+            movimentacoesList.innerHTML = '<p class="text-gray-500">Nenhuma movimentação.</p>'; return;
+        }
+        [...movs].reverse().forEach(mov => {
+            movimentacoesList.innerHTML += `<div class="p-2 bg-gray-50 rounded"><p>${mov.texto}</p><small>${new Date(mov.data).toLocaleString('pt-BR')}</small></div>`;
+        });
+    }
+
+    movimentacaoForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = movProcessoIdInput.value;
+        const texto = document.getElementById('novaMovimentacao').value;
+        try {
+            const updatedProcess = await api.addMovement(id, texto);
+            // Atualiza a lista na UI
+            const processIndex = allProcesses.findIndex(p => p.id == id);
+            allProcesses[processIndex] = updatedProcess;
+            renderMovimentacoes(updatedProcess.movimentacoes);
+            document.getElementById('novaMovimentacao').value = '';
+            renderProcesses(); // Re-renderiza a lista principal para atualizar a contagem
+        } catch(error) {
+            console.error('Erro ao adicionar movimentação:', error);
+            alert('Falha ao adicionar movimentação.');
         }
     });
     
-    document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
-        if (processToDeleteId) {
-            processes = processes.filter(p => p.id !== processToDeleteId);
-            saveProcesses();
-            closeConfirmDeleteModal();
-        }
-    });
+    searchInput.addEventListener('input', () => renderProcesses());
 
-    searchInput.addEventListener('input', renderProcesses);
-    statusFilter.addEventListener('change', renderProcesses);
-    actionFilter.addEventListener('change', renderProcesses);
-
-    // Lógica de Exportação
-    const downloadFile = (content, fileName, contentType) => {
-        const a = document.createElement("a");
-        const file = new Blob([content], { type: contentType });
-        a.href = URL.createObjectURL(file);
-        a.download = fileName;
-        a.click();
-        URL.revokeObjectURL(a.href);
-    };
-
-    const exportToCsv = () => {
-        if (processes.length === 0) return;
-        const headers = ["ID", "Numero do Processo", "Cliente", "Tipo de Ação", "Link", "Situação", "Próxima Audiência", "Observação", "Última Atualização"];
-        
-        const escapeCsvField = (field) => {
-            if (field === null || field === undefined) return '';
-            const stringField = String(field);
-            if (stringField.search(/("|,|\n)/g) >= 0) {
-                return `"${stringField.replace(/"/g, '""')}"`;
-            }
-            return stringField;
-        };
-
-        const rows = processes.map(p => [
-            escapeCsvField(p.id),
-            escapeCsvField(p.numero),
-            escapeCsvField(p.cliente),
-            escapeCsvField(p.acao),
-            escapeCsvField(p.link),
-            escapeCsvField(p.situacao),
-            escapeCsvField(p.audiencia),
-            escapeCsvField(p.obs),
-            escapeCsvField(p.lastUpdated)
-        ].join(','));
-        
-        const csvContent = [headers.join(','), ...rows].join('\n');
-        downloadFile(csvContent, 'processos_jmd.csv', 'text/csv;charset=utf-8;');
-    };
-
-    const exportToJson = () => {
-        if (processes.length === 0) return;
-        const jsonContent = JSON.stringify(processes, null, 2);
-        downloadFile(jsonContent, 'processos_jmd.json', 'application/json;charset=utf-8;');
-    };
-
-    exportBtn.addEventListener('click', () => {
-        exportMenu.classList.toggle('hidden');
-    });
-
-    exportCsvBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        exportToCsv();
-        exportMenu.classList.add('hidden');
-    });
-
-    exportJsonBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        exportToJson();
-        exportMenu.classList.add('hidden');
-    });
-
-    renderProcesses();
+    // --- INICIALIZAÇÃO ---
+    loadProcesses();
 });
-
 </script>
-
 </body>
 </html>
 
